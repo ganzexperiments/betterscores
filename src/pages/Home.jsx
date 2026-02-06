@@ -8,6 +8,7 @@ import { sortGamesByImportance } from '../utils/game-importance';
 import { format } from 'date-fns';
 
 export const Home = () => {
+  // Scoreboard with smart polling optimization
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [league, setLeague] = useState('nba');
   
