@@ -26,10 +26,20 @@ export const GameCard = ({ game, league = 'nba' }) => {
 
   const { score: importanceScore, reason } = getGameImportance(game, league);
 
+  const handleExpandClick = () => {
+    setIsExpanded(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const handleClose = () => {
+    setIsExpanded(false);
+    document.body.style.overflow = 'auto';
+  };
+
   return (
     <>
       <div 
-        onClick={() => setIsExpanded(true)}
+        onClick={handleExpandClick}
         className="group relative overflow-hidden rounded-xl transition-all duration-200 hover:border-white/20 bg-[#0f1117] border border-white/5 cursor-pointer hover:shadow-2xl"
       >
         <div className="p-5">
@@ -72,7 +82,7 @@ export const GameCard = ({ game, league = 'nba' }) => {
         <GameCardExpanded 
           game={game}
           league={league}
-          onClose={() => setIsExpanded(false)} 
+          onClose={handleClose} 
         />
       )}
     </>

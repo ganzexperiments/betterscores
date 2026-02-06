@@ -141,34 +141,39 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   const analysis = getSmartAnalysis();
   const displayOdds = getOdds();
 
+  const handleClose = () => {
+    document.body.style.overflow = 'auto';
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-500" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 transition-all duration-500 overflow-hidden" onClick={handleClose}>
       <div 
-        className="bg-[#0f1117] border border-white/10 rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden"
+        className="bg-[#0f1117] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Enhanced Header with Records */}
-        <div className="p-6 border-b border-white/5 flex justify-between items-start bg-white/[0.01]">
-          <div className="flex-1">
+        {/* Enhanced Header with Records (Sticky) */}
+        <div className="sticky top-0 p-4 sm:p-6 border-b border-white/5 flex justify-between items-start bg-[#0f1117]/95 backdrop-blur z-10">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-               <span className="text-[11px] font-black text-blue-400 uppercase tracking-widest">
+               <span className="text-[10px] sm:text-[11px] font-black text-blue-400 uppercase tracking-widest flex-shrink-0">
                  {competition.status.type.detail}
                </span>
             </div>
-            <h3 className="text-2xl font-black text-white tracking-tight mb-1">
+            <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight mb-1 truncate">
               {away.team?.abbreviation} @ {home.team?.abbreviation}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 line-clamp-2">
               {away.team?.shortDisplayName} ({away.records?.[0]?.summary || '—'}) vs {home.team?.shortDisplayName} ({home.records?.[0]?.summary || '—'})
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg border border-white/5 transition-all text-slate-500 hover:text-slate-200 flex-shrink-0">
-            <X size={18} />
+          <button onClick={handleClose} className="p-1.5 sm:p-2 hover:bg-white/5 rounded-lg border border-white/5 transition-all text-slate-500 hover:text-slate-200 flex-shrink-0 ml-2">
+            <X size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
         </div>
 
-        {/* Info Grid */}
-        <div className="p-6 space-y-6">
+        {/* Info Grid (Scrollable Content) */}
+        <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-6">
           {/* Analysis Card - Muted */}
           <div className="bg-blue-500/[0.03] border border-blue-500/10 p-4 rounded-xl flex gap-3 items-center">
              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
@@ -260,17 +265,17 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
            )}
         </div>
 
-        {/* Footer CTA */}
-        <div className="p-6 border-t border-white/5 bg-white/[0.01] flex gap-3">
+        {/* Footer CTA (Sticky) */}
+        <div className="sticky bottom-0 p-4 sm:p-6 border-t border-white/5 bg-[#0f1117]/95 backdrop-blur z-10 flex gap-3">
            <button 
               onClick={() => navigate(`/standings`)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all text-sm"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm"
            >
               View Full Stats
            </button>
            <button 
-              onClick={onClose}
-              className="flex-1 bg-white/5 hover:bg-white/10 text-slate-200 font-bold py-2.5 px-4 rounded-lg transition-all text-sm border border-white/10"
+              onClick={handleClose}
+              className="flex-1 bg-white/5 hover:bg-white/10 text-slate-200 font-bold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm border border-white/10"
            >
               Close
            </button>
