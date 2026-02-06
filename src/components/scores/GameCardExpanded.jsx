@@ -5,17 +5,7 @@ import { espnAPI } from '../../utils/api-client';
 
 export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  
-  const competition = game.competitions?.[0];
-  if (!competition) return null;
-
-  const [away, home] = competition.competitors || [];
-  if (!home || !away) return null;
-
-  const isLive = competition.status?.type?.state === 'in';
-  const isOver = competition.status?.type?.state === 'post';
   
   useEffect(() => {
     const fetchData = async () => {
@@ -24,27 +14,19 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
         setSummary(summaryData);
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
       }
     };
     fetchData();
   }, [game.id, league]);
 
-  const getTeamStats = (teamData) => {
-    // Extract basic team stats from competitors data
-    if (!teamData) return null;
-    const stats = teamData.statistics?.[0]?.stats || [];
-    const findStat = (abbreviation) => {
-      const stat = stats.find(s => s.abbreviation === abbreviation);
-      return stat ? parseFloat(stat.displayValue) : null;
-    };
-    return {
-      ppg: findStat('PPG'),
-      oppg: findStat('OPPG'),
-      pace: findStat('PACE'),
-    };
-  };
+  const competition = game.competitions?.[0];
+  if (!competition) return null;
+
+  const [away, home] = competition.competitors || [];
+  if (!home || !away) return null;
+
+  const isLive = competition.status?.type?.state === 'in';
+  const isOver = competition.status?.type?.state === 'post';
 
   const getOdds = () => {
     const odds = game.competitions?.[0]?.odds?.[0];
@@ -259,7 +241,7 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
            {isOver && (
               <div className="pt-2 border-t border-white/5">
                  <p className="text-sm text-slate-300">
-                    Final: {homeScoreValue > awayScoreValue ? home.team.shortDisplayName : away.team.shortDisplayName} wins
+                    Final: {parseInt(home.score) > parseInt(away.score) ? home.team.shortDisplayName : away.team.shortDisplayName} wins
                  </p>
               </div>
            )}
