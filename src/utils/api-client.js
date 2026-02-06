@@ -8,9 +8,7 @@ export const espnAPI = {
       ? `${ESPN_BASE}/site/v2/sports/basketball/nba/scoreboard?dates=${date}`
       : `${ESPN_BASE}/site/v2/sports/basketball/nba/scoreboard`;
     const response = await fetch(url);
-    const data = await response.json();
-    console.log('NBA Data received:', data?.events?.length || 0, 'events');
-    return data;
+    return response.json();
   },
 
   getNBAStandings: async () => {
@@ -86,6 +84,14 @@ export const espnAPI = {
     return response.json();
   },
 
+  getGameOdds: async (league, gameId) => {
+    const leaguePath = league === 'nba' ? 'nba' : 'mens-college-basketball';
+    const response = await fetch(
+      `${ESPN_BASE}/site/v2/sports/basketball/${leaguePath}/scoreboard/${gameId}/odds`
+    );
+    return response.json();
+  },
+
   // Live game box score
   getGameSummary: async (league, gameId) => {
     const leaguePath = league === 'nba' ? 'nba' : 'mens-college-basketball';
@@ -94,6 +100,24 @@ export const espnAPI = {
     );
     return response.json();
   },
+
+  getWinProbability: async (league, gameId) => {
+    const leaguePath = league === 'nba' ? 'nba' : 'mens-college-basketball';
+    const response = await fetch(
+      `${ESPN_BASE}/site/v2/sports/basketball/${leaguePath}/summary?event=${gameId}`
+    );
+    const data = await response.json();
+    return data.winProbability || [];
+  },
+
+  getPlayByPlay: async (league, gameId) => {
+    const leaguePath = league === 'nba' ? 'nba' : 'mens-college-basketball';
+    const response = await fetch(
+      `${ESPN_BASE}/site/v2/sports/basketball/${leaguePath}/summary?event=${gameId}`
+    );
+    const data = await response.json();
+    return data.plays || [];
+  }
 };
 
 // Date formatting helper for ESPN API (YYYYMMDD)

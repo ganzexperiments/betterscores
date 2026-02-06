@@ -1,88 +1,82 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, addDays, isSameDay } from 'date-fns';
+import React from 'react';
+import { format, addDays, subDays, isSameDay } from 'date-fns';
+import { Calendar } from 'lucide-react';
 
-export const DatePicker = ({ selectedDate, onDateChange }) => {
-  const today = new Date();
+export default function DatePicker({ selectedDate, onDateChange }) {
+  const [isExpanded, setIsExpanded] = React.useState(false);
   
-  // Generate dates: 14 days back, 14 days forward (29 total)
-  const dates = [];
-  for (let i = -14; i <= 14; i++) {
-    dates.push(addDays(today, i));
-  }
+  const quickDates = [
+    { label: 'Yesterday', date: subDays(new Date(), 1) },
+    { label: 'Today', date: new Date() },
+    { label: 'Tomorrow', date: addDays(new Date(), 1) },
+  ];
 
-  const scrollToDate = (date) => {
+  const handleDateClick = (date) => {
     onDateChange(date);
-  };
-
-  const handlePrev = () => {
-    const currentIndex = dates.findIndex(d => isSameDay(d, selectedDate));
-    if (currentIndex > 0) {
-      scrollToDate(dates[currentIndex - 1]);
-    }
-  };
-
-  const handleNext = () => {
-    const currentIndex = dates.findIndex(d => isSameDay(d, selectedDate));
-    if (currentIndex < dates.length - 1) {
-      scrollToDate(dates[currentIndex + 1]);
-    }
+    setIsExpanded(false);
   };
 
   return (
-    <div className="bg-[#12151c] rounded-lg border border-white/10 p-3 mb-8">
-      <div className="flex items-center gap-2">
-        <button
-          onClick={handlePrev}
-          className="p-1.5 hover:bg-white/10 rounded-lg transition-all text-white/60 hover:text-white"
-          aria-label="Previous day"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
+    <div className="mb-10 flex flex-col items-center">
+      <div className="flex flex-col items-center bg-[#12151c] border border-white/5 rounded-xl p-1 shadow-sm transition-all duration-300 hover:border-white/10 relative">
+        <div className="flex items-center">
+          {quickDates.map(({ label, date }) => {
+            const isSelected = isSameDay(date, selectedDate);
+            return (
+              <button
+                key={label}
+                onClick={() => handleDateClick(date)}
+                className={`px-5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  isSelected 
+                    ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+          
+          <div className="w-[1px] h-3 bg-white/10 mx-2" />
+          
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`px-3 py-1.5 rounded-lg transition-all ${
+              isExpanded ? 'bg-white/10 text-blue-400' : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <Calendar size={14} />
+          </button>
+        </div>
 
-        <div className="flex-1 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-1.5 justify-center">
-            {dates.map((date) => {
+        {isExpanded && (
+          <div className="absolute top-full mt-2 z-50 grid grid-cols-7 gap-1 p-3 bg-[#12151c] border border-white/10 rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            {Array.from({ length: 14 }).map((_, i) => {
+              const date = addDays(subDays(new Date(), 7), i);
               const isSelected = isSameDay(date, selectedDate);
-              const isToday = isSameDay(date, today);
-
+              
               return (
                 <button
-                  key={date.toISOString()}
-                  onClick={() => scrollToDate(date)}
-                  className={`
-                    relative flex flex-col items-center 
-                    py-2 px-3
-                    rounded-lg 
-                    min-w-[52px]
-                    transition-colors duration-200
-                    ${isSelected
-                      ? 'bg-blue-500 text-white'
-                      : isToday
-                        ? 'bg-white/5 text-white ring-1 ring-blue-500/30'
-                        : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
-                    }
-                  `}
+                  key={i}
+                  onClick={() => handleDateClick(date)}
+                  className={`flex flex-col items-center justify-center w-10 h-12 rounded-lg transition-all ${
+                    isSelected 
+                      ? 'bg-blue-600 text-white' 
+                      : 'hover:bg-white/5 text-slate-400'
+                  }`}
                 >
-                  <span className="text-xs font-medium opacity-60 uppercase">
+                  <span className="text-[9px] uppercase font-black opacity-40">
                     {format(date, 'EEE')}
                   </span>
-                  <span className="text-2xl font-semibold">
+                  <span className="text-sm font-bold leading-tight mt-0.5">
                     {format(date, 'd')}
                   </span>
                 </button>
               );
             })}
           </div>
-        </div>
-
-        <button
-          onClick={handleNext}
-          className="p-1.5 hover:bg-white/10 rounded-lg transition-all text-white/60 hover:text-white"
-          aria-label="Next day"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
+        )}
       </div>
     </div>
   );
-};
+}
