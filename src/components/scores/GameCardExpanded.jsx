@@ -4,7 +4,6 @@ import { espnAPI } from '../../utils/api-client';
 
 export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   const [summary, setSummary] = useState(null);
-  const [odds, setOdds] = useState(null);
   const [loading, setLoading] = useState(true);
   
   const competition = game.competitions?.[0];
@@ -18,12 +17,8 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [summaryData, oddsData] = await Promise.all([
-          espnAPI.getGameSummary(league, game.id),
-          espnAPI.getGameOdds(league, game.id)
-        ]);
+        const summaryData = await espnAPI.getGameSummary(league, game.id);
         setSummary(summaryData);
-        if (oddsData?.items?.length > 0) setOdds(oddsData.items[0]);
       } catch (err) {
         console.error(err);
       } finally {
@@ -36,8 +31,9 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   const getSmartAnalysis = () => {
     if (!summary) return { title: "Analyzing", description: "Calculating momentum coefficients...", icon: <TrendingUp size={16} /> };
     
-    // ESPN sometimes nests odds in the competition or in the summary wrapper
-    const currentOdds = summary.odds?.[0] || summary.header?.competitions?.[0]?.odds?.[0];
+    // ESPN nests odds deeper in the scoreboard/header response
+    const currentOdds = game.competitions?.[0]?.odds?.[0] || summary.header?.competitions?.[0]?.odds?.[0] || summary.odds?.[0];
+    
     const plays = summary.plays || [];
     const homeScoreValue = parseInt(home.score) || 0;
     const awayScoreValue = parseInt(away.score) || 0;
@@ -95,7 +91,7 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   };
 
   const analysis = getSmartAnalysis();
-  const displayOdds = odds || analysis.odds;
+  const displayOdds = analysis.odds;
 
   return (
     <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-500" onClick={onClose}>
