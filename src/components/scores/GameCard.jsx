@@ -46,7 +46,13 @@ export const GameCard = ({ game, league = 'nba' }) => {
           <div className="space-y-3">
             {[away, home].map((team, idx) => (
               <div key={team?.team?.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div 
+                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/team/${league}/${team?.team?.id}`);
+                  }}
+                >
                    <img src={team?.team?.logo} className="w-8 h-8 object-contain" />
                    <div className="flex flex-col">
                       <span className="text-sm font-bold text-white uppercase tracking-tight">{team?.team?.abbreviation}</span>

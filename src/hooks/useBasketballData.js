@@ -1,10 +1,40 @@
 import { useState, useEffect } from 'react';
 import { espnAPI } from '../utils/api-client';
 
+// Helper: Check if any game needs active polling
+const shouldPollGames = (games) => {
+  if (!games || games.length === 0) return false;
+  
+  const now = new Date();
+  
+  for (const game of games) {
+    const status = game.competitions?.[0]?.status;
+    
+    // Game is live/in progress
+    if (status?.type?.state === 'in') {
+      return true;
+    }
+    
+    // Game is scheduled and coming up soon
+    if (status?.type?.state === 'pre') {
+      const gameTime = new Date(game.date);
+      const minsUntilTipoff = (gameTime - now) / 1000 / 60;
+      
+      // Keep polling if within 10 minutes of tipoff
+      if (minsUntilTipoff >= 0 && minsUntilTipoff <= 10) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+};
+
 export const useScoreboard = (league, date, autoRefresh = true) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isPolling, setIsPolling] = useState(autoRefresh);
 
   useEffect(() => {
     const fetchData = async (isInitial = false) => {
@@ -15,6 +45,12 @@ export const useScoreboard = (league, date, autoRefresh = true) => {
           : await espnAPI.getNCAAMScoreboard(date);
         setData(result);
         setError(null);
+        
+        // After fetch, determine if we should continue polling
+        if (autoRefresh) {
+          const shouldPoll = shouldPollGames(result?.events);
+          setIsPolling(shouldPoll);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -25,15 +61,15 @@ export const useScoreboard = (league, date, autoRefresh = true) => {
     // Initial fetch
     fetchData(true);
 
-    // Set up auto-refresh if enabled
-    if (autoRefresh) {
+    // Set up auto-refresh if enabled and polling is needed
+    if (autoRefresh && isPolling) {
       const interval = setInterval(() => {
         fetchData(false); // Background refresh every 10s
       }, 10000); // 10 seconds
 
       return () => clearInterval(interval);
     }
-  }, [league, date, autoRefresh]);
+  }, [league, date, autoRefresh, isPolling]);
 
   return { data, loading, error };
 };
