@@ -133,7 +133,7 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
       <div 
         className="bg-[#0f1117] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '80vh' }}
+        style={{ maxHeight: '95vh', minHeight: '400px' }}
       >
         {/* Enhanced Header with Records (Sticky) */}
         <div className="sticky top-0 p-4 sm:p-6 border-b border-white/5 flex justify-between items-start bg-[#0f1117]/95 backdrop-blur z-10">
