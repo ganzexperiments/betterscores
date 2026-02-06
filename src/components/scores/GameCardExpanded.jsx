@@ -171,27 +171,21 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
            {displayOdds && (
              <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
                 <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4">Vegas Lines</h4>
-                <div className="grid grid-cols-3 gap-3">
-                   <div className="flex flex-col">
-                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Moneyline</span>
-                      <div className="space-y-1">
-                         <div className="text-sm font-bold text-white">{displayOdds.moneylineAway}</div>
-                         <div className="text-[10px] text-slate-500">{away.team?.abbreviation}</div>
-                      </div>
-                      <div className="border-t border-white/5 mt-2 pt-2">
-                         <div className="text-sm font-bold text-white">{displayOdds.moneylineHome}</div>
-                         <div className="text-[10px] text-slate-500">{home.team?.abbreviation}</div>
-                      </div>
+                <div className="grid grid-cols-3 gap-3 items-start">
+                   <div className="text-center">
+                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-3">Moneyline</span>
+                      <div className="text-sm font-bold text-white mb-2">{displayOdds.moneylineAway} / {displayOdds.moneylineHome}</div>
+                      <div className="text-[9px] text-slate-500">{away.team?.abbreviation} / {home.team?.abbreviation}</div>
                    </div>
-                   <div>
-                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Spread</span>
-                      <div className="text-base font-bold text-white tabular-nums">{displayOdds.spreadText}</div>
-                      <div className="text-[10px] text-slate-500 mt-1">{displayOdds.spread ? `(${displayOdds.spread})` : '(—)'}</div>
+                   <div className="text-center">
+                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-3">Spread</span>
+                      <div className="text-base font-bold text-white tabular-nums mb-2">{displayOdds.spreadText}</div>
+                      <div className="text-[9px] text-slate-500">{displayOdds.spread ? `(${displayOdds.spread})` : '(—)'}</div>
                    </div>
-                   <div>
-                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Total</span>
-                      <div className="text-base font-bold text-white tabular-nums">{displayOdds.overUnder || 'N/A'}</div>
-                      <div className="text-[10px] text-slate-500 mt-1">(—)</div>
+                   <div className="text-center">
+                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-3">Total</span>
+                      <div className="text-base font-bold text-white tabular-nums mb-2">{displayOdds.overUnder || 'N/A'}</div>
+                      <div className="text-[9px] text-slate-500">(—)</div>
                    </div>
                 </div>
              </div>
