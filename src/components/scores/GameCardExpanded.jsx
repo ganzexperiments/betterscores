@@ -131,8 +131,9 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   return (
     <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-sm z-50 flex items-start justify-center p-2 sm:p-4 transition-all duration-500 overflow-hidden pt-2 sm:pt-4" onClick={handleClose}>
       <div 
-        className="bg-[#0f1117] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)]"
+        className="bg-[#0f1117] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        style={{ maxHeight: 'calc(100vh - 2rem)' }}
       >
         {/* Enhanced Header with Records (Sticky) */}
         <div className="sticky top-0 p-4 sm:p-6 border-b border-white/5 flex justify-between items-start bg-[#0f1117]/95 backdrop-blur z-10">
