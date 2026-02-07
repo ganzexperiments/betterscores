@@ -19,6 +19,17 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
     fetchData();
   }, [game.id, league]);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
   const competition = game.competitions?.[0];
   if (!competition) return null;
 
@@ -150,8 +161,12 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
               {away.team?.shortDisplayName} ({away.records?.[0]?.summary || '—'}) vs {home.team?.shortDisplayName} ({home.records?.[0]?.summary || '—'})
             </p>
           </div>
-          <button onClick={handleClose} className="p-1.5 sm:p-2 hover:bg-white/5 rounded-lg border border-white/5 transition-all text-slate-500 hover:text-slate-200 flex-shrink-0 ml-2">
-            <X size={16} className="sm:w-[18px] sm:h-[18px]" />
+          <button 
+            onClick={handleClose} 
+            className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg border border-white/10 hover:border-white/20 transition-all text-slate-400 hover:text-slate-100 flex-shrink-0 ml-2 group"
+            title="Close modal (Esc)"
+          >
+            <X size={18} className="group-hover:scale-110 transition-transform" />
           </button>
         </div>
 
@@ -195,39 +210,46 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
            {/* Live Game Context */}
            {isLive && (
               <div className="space-y-4 pt-2 border-t border-white/5">
-                 <div>
-                    <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">Leading Scorers</h4>
-                    <div className="grid grid-cols-1 divide-y divide-white/5">
-                       {summary?.boxscore?.players?.map(team => {
-                          const leader = team.statistics?.[0]?.athletes?.[0];
-                          const fouls = leader?.stats?.[10]; // Foul count typically at index 10
-                          const hasFoulTrouble = fouls >= 4;
-                          return (
-                             <div key={team.team.id} className="flex items-center justify-between py-3">
-                                <div className="flex items-center gap-3 flex-1">
-                                   <img src={team.team.logo} className="w-6 h-6 opacity-70" />
-                                   <div className="flex-1">
-                                      <div className="text-sm font-semibold text-slate-100">{leader?.athlete?.displayName}</div>
-                                      <div className="text-[10px] text-slate-500">{team.team.abbreviation}</div>
+                 {/* Leading Scorers - Top 3 only */}
+                 {summary?.boxscore?.players && (
+                    <div>
+                       <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">Leading Scorers</h4>
+                       <div className="space-y-2">
+                          {summary.boxscore.players.slice(0, 2).map((team, teamIdx) => {
+                             const leader = team.statistics?.[0]?.athletes?.[0];
+                             if (!leader) return null;
+                             const fouls = leader?.stats?.[10]; // Foul count typically at index 10
+                             const hasFoulTrouble = fouls >= 4;
+                             return (
+                                <div key={`${team.team.id}-${teamIdx}`} className="flex items-center justify-between p-3 bg-white/[0.02] rounded-lg border border-white/5 hover:border-white/10 transition-colors">
+                                   <div className="flex items-center gap-3 flex-1 min-w-0">
+                                      <img src={team.team.logo} className="w-7 h-7 flex-shrink-0 opacity-80" />
+                                      <div className="flex-1 min-w-0">
+                                         <div className="text-sm font-semibold text-slate-100 truncate">{leader?.athlete?.displayName}</div>
+                                         <div className="text-[10px] text-slate-500">{team.team.abbreviation}</div>
+                                      </div>
+                                   </div>
+                                   <div className="text-right flex-shrink-0 ml-2">
+                                      <div className="text-base font-black text-white tabular-nums">{leader?.stats?.[1] || 0}</div>
+                                      <div className="text-[9px] text-slate-500 font-medium">PTS</div>
+                                      {hasFoulTrouble && (
+                                         <div className="text-[8px] text-yellow-400 font-bold mt-0.5">⚠️ {fouls}F</div>
+                                      )}
                                    </div>
                                 </div>
-                                <div className="text-right">
-                                   <div className="text-sm font-black text-white tabular-nums">{leader?.stats?.[1] || 0}</div>
-                                   <div className="text-[9px] text-slate-500">PTS</div>
-                                   {hasFoulTrouble && (
-                                      <div className="text-[8px] text-yellow-400 font-bold mt-0.5">⚠️ {fouls} fouls</div>
-                                   )}
-                                </div>
-                             </div>
-                          )
-                       })}
+                             )
+                          })}
+                       </div>
                     </div>
-                 </div>
+                 )}
 
                  {/* Live Game Status */}
-                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                    <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Quarter {competition.status?.period || '—'}</div>
-                    <div className="text-base font-bold text-white mt-1">{competition.status?.displayClock || '—'}</div>
+                 <div className="bg-gradient-to-r from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-lg p-4 flex justify-between items-end">
+                    <div>
+                       <div className="text-[9px] font-black text-blue-400/70 uppercase tracking-widest mb-1">Live Status</div>
+                       <div className="text-sm text-slate-300 font-medium">Q{competition.status?.period || '—'} • {competition.status?.displayClock || '—'}</div>
+                    </div>
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                  </div>
               </div>
            )}
@@ -242,21 +264,8 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
            )}
         </div>
 
-        {/* Footer CTA (Sticky) */}
-        <div className="sticky bottom-0 p-4 sm:p-6 border-t border-white/5 bg-[#0f1117]/95 backdrop-blur z-10 flex gap-3">
-           <button 
-              onClick={() => navigate(`/standings`)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm"
-           >
-              View Full Stats
-           </button>
-           <button 
-              onClick={handleClose}
-              className="flex-1 bg-white/5 hover:bg-white/10 text-slate-200 font-bold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg transition-all text-xs sm:text-sm border border-white/10"
-           >
-              Close
-           </button>
-        </div>
+        {/* Footer padding to prevent content hiding under bottom of modal */}
+        <div className="h-4"></div>
       </div>
     </div>
   );
