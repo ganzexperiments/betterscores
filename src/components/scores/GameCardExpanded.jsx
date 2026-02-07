@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, TrendingUp, Zap, Target, BarChart3 } from 'lucide-react';
+import { X, TrendingUp, Zap, Target, BarChart3, TrendingDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { espnAPI } from '../../utils/api-client';
+import { mockOdds } from '../../utils/mock-odds';
 
 export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   const [summary, setSummary] = useState(null);
@@ -41,18 +42,35 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
 
   const getOdds = () => {
     const odds = game.competitions?.[0]?.odds?.[0];
-    if (!odds) return null;
     
-    const mlHome = odds.moneyline?.home?.close?.odds;
-    const mlAway = odds.moneyline?.away?.close?.odds;
+    // Try to get ESPN data first
+    const mlHome = odds?.moneyline?.home?.close?.odds;
+    const mlAway = odds?.moneyline?.away?.close?.odds;
     
-    return {
-      moneylineHome: mlHome || 'N/A',
-      moneylineAway: mlAway || 'N/A',
-      spread: odds.spread,
-      spreadText: odds.details || 'N/A',
-      overUnder: odds.overUnder,
-    };
+    // Use ESPN if available, otherwise generate mock
+    if (mlHome && mlAway && mlHome !== 'N/A' && mlAway !== 'N/A') {
+      return mockOdds.enrichOdds(
+        {
+          moneylineHome: mlHome,
+          moneylineAway: mlAway,
+          spread: odds.spread,
+          spreadText: odds.details || 'N/A',
+          overUnder: odds.overUnder,
+        },
+        home.team?.shortDisplayName,
+        away.team?.shortDisplayName,
+        home.records?.[0]?.summary,
+        away.records?.[0]?.summary
+      );
+    }
+    
+    // Generate mock odds for MVP
+    return mockOdds.generateGameOdds(
+      home.team?.shortDisplayName,
+      away.team?.shortDisplayName,
+      home.records?.[0]?.summary,
+      away.records?.[0]?.summary
+    );
   };
 
   const getSmartAnalysis = () => {
@@ -183,26 +201,66 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
              </div>
           </div>
 
-           {/* Betting Data - Complete */}
+           {/* Betting Data - Enhanced with Implied Probability */}
            {displayOdds && (
-             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5">
-                <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4">Vegas Lines</h4>
-                <div className="grid grid-cols-3 gap-3 items-start">
-                   <div className="text-center">
-                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-3">Moneyline</span>
-                      <div className="text-sm font-bold text-white mb-2">{displayOdds.moneylineAway} / {displayOdds.moneylineHome}</div>
-                      <div className="text-[9px] text-slate-500">{away.team?.abbreviation} / {home.team?.abbreviation}</div>
-                   </div>
-                   <div className="text-center">
-                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-3">Spread</span>
-                      <div className="text-base font-bold text-white tabular-nums mb-2">{displayOdds.spreadText}</div>
-                      <div className="text-[9px] text-slate-500">{displayOdds.spread ? `(${displayOdds.spread})` : '(—)'}</div>
-                   </div>
-                   <div className="text-center">
-                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-3">Total</span>
-                      <div className="text-base font-bold text-white tabular-nums mb-2">{displayOdds.overUnder || 'N/A'}</div>
-                      <div className="text-[9px] text-slate-500">(—)</div>
-                   </div>
+             <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 space-y-5">
+                <div>
+                  <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    Vegas Lines
+                    {displayOdds.source === 'mock-data' && (
+                      <span className="text-[8px] bg-slate-700/50 text-slate-400 px-1.5 py-0.5 rounded opacity-60">MVP Data</span>
+                    )}
+                  </h4>
+                  
+                  {/* Moneyline with Implied Probability */}
+                  <div className="space-y-3">
+                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">Moneyline (Implied %)</div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Away Team */}
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-between mb-1">
+                          <span className="text-sm font-bold text-white">{mockOdds.formatOdds(displayOdds.moneylineAway)}</span>
+                          <span className="text-[10px] font-bold text-cyan-400">{displayOdds.moneylineProbAway}%</span>
+                        </div>
+                        <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                          <div 
+                            className="h-full bg-cyan-500/60 rounded-full transition-all duration-300"
+                            style={{ width: `${displayOdds.moneylineProbAway}%` }}
+                          />
+                        </div>
+                        <div className="text-[9px] text-slate-500">{away.team?.abbreviation}</div>
+                      </div>
+                      
+                      {/* Home Team */}
+                      <div className="space-y-2">
+                        <div className="flex items-baseline justify-between mb-1">
+                          <span className="text-sm font-bold text-white">{mockOdds.formatOdds(displayOdds.moneylineHome)}</span>
+                          <span className="text-[10px] font-bold text-orange-400">{displayOdds.moneylineProbHome}%</span>
+                        </div>
+                        <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                          <div 
+                            className="h-full bg-orange-500/60 rounded-full transition-all duration-300"
+                            style={{ width: `${displayOdds.moneylineProbHome}%` }}
+                          />
+                        </div>
+                        <div className="text-[9px] text-slate-500">{home.team?.abbreviation}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Spread & Total */}
+                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/5">
+                  <div>
+                    <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-2">Spread</span>
+                    <div className="text-base font-bold text-white tabular-nums">{displayOdds.spread > 0 ? `+${displayOdds.spread}` : displayOdds.spread}</div>
+                    <div className="text-[9px] text-slate-500 mt-1">{home.team?.abbreviation} favored</div>
+                  </div>
+                  <div>
+                    <span className="text-[8px] font-bold text-slate-600 uppercase tracking-wider block mb-2">Total</span>
+                    <div className="text-base font-bold text-white tabular-nums">{displayOdds.overUnder}</div>
+                    <div className="text-[9px] text-slate-500 mt-1">O/U</div>
+                  </div>
                 </div>
              </div>
            )}
