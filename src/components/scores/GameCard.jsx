@@ -40,13 +40,12 @@ export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) =>
   return (
     <>
       <div 
-        onClick={handleExpandClick}
         className="group relative rounded-lg transition-all duration-300 bg-gradient-to-br from-[#0f1117] to-[#0a0e27] border border-white/8 cursor-pointer hover:border-white/15 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-105"
         style={{
           backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)`
         }}
       >
-        <div className="p-6">
+        <div className="p-6" onClick={handleExpandClick}>
           <div className="flex justify-between items-start mb-5">
             <div className="flex flex-col gap-1">
                <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider letter-spacing-1">{status.type?.shortDetail}</span>
@@ -66,17 +65,19 @@ export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) =>
             {isLive && <MomentumSparkline plays={summary?.plays} />}
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
             {[away, home].map((team, idx) => (
               <div key={team?.team?.id} className="flex items-center justify-between group/team">
                 <div 
-                  className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity flex-1"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/team/${league}/${team?.team?.id}`);
-                  }}
+                  className="flex items-center gap-3 flex-1"
                 >
-                   <div className="relative">
+                   <div 
+                     className="relative cursor-pointer hover:opacity-80 transition-opacity"
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       navigate(`/team/${league}/${team?.team?.id}`);
+                     }}
+                   >
                      <img src={team?.team?.logo} className="w-9 h-9 object-contain filter drop-shadow-lg" />
                    </div>
                    <div className="flex flex-col min-w-0">
