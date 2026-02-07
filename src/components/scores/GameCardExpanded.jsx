@@ -158,11 +158,11 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-sm z-50 flex items-start justify-center p-2 sm:p-4 transition-all duration-500 overflow-hidden pt-2 sm:pt-4" onClick={handleClose}>
+    <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={handleClose}>
       <div 
-        className="bg-[#0f1117] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col"
+        className="bg-[#0f1117] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '95vh', minHeight: '400px' }}
+        style={{ maxHeight: '80vh' }}
       >
         {/* Enhanced Header with Records (Sticky) */}
         <div className="sticky top-0 p-4 sm:p-6 border-b border-white/5 flex justify-between items-start bg-[#0f1117]/95 backdrop-blur z-10">
@@ -189,7 +189,7 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
         </div>
 
         {/* Info Grid (Scrollable Content) */}
-        <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-6">
+        <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Analysis Card - Muted */}
           <div className="bg-blue-500/[0.03] border border-blue-500/10 p-4 rounded-xl flex gap-3 items-center">
              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
