@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getGameImportance } from '../../utils/game-importance';
 import { GameCardExpanded } from './GameCardExpanded';
 import MomentumSparkline from './MomentumSparkline';
@@ -9,7 +8,6 @@ export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) =>
   const [isExpanded, setIsExpanded] = useState(false);
   const [summary, setSummary] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
-  const navigate = useNavigate();
   
   const competition = game.competitions?.[0];
   if (!competition) return null;
@@ -65,19 +63,13 @@ export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) =>
             {isLive && <MomentumSparkline plays={summary?.plays} />}
           </div>
           
-          <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
+          <div className="space-y-4">
             {[away, home].map((team, idx) => (
               <div key={team?.team?.id} className="flex items-center justify-between group/team">
                 <div 
                   className="flex items-center gap-3 flex-1"
                 >
-                   <div 
-                     className="relative cursor-pointer hover:opacity-80 transition-opacity"
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       navigate(`/team/${league}/${team?.team?.id}`);
-                     }}
-                   >
+                   <div className="relative">
                      <img src={team?.team?.logo} className="w-9 h-9 object-contain filter drop-shadow-lg" />
                    </div>
                    <div className="flex flex-col min-w-0">
