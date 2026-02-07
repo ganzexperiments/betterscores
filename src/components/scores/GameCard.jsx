@@ -94,6 +94,23 @@ export const GameCard = ({ game, league = 'nba' }) => {
               </div>
             ))}
           </div>
+
+          {/* Betting odds placeholder - ready for integration */}
+          <div className="mt-5 pt-4 border-t border-white/10">
+            <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider mb-2">Vegas Line</div>
+            <div className="flex justify-between items-center text-xs">
+              <div className="text-slate-400">Moneyline • Spread • Total</div>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(true);
+                }}
+                className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+              >
+                View →
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
