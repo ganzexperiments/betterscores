@@ -18,8 +18,8 @@ export const Home = () => {
   const { data, loading, error } = useScoreboard(league, dateStr);
   const games = data?.events || [];
 
-  const liveGames = games.filter(g => g.status.type.state === 'in');
-  const otherGames = games.filter(g => g.status.type.state !== 'in');
+  const liveGames = games.filter(g => g?.status?.type?.state === 'in');
+  const otherGames = games.filter(g => g?.status?.type?.state !== 'in');
   
   const sortedOther = sortGamesByImportance(otherGames, league);
 

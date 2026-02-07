@@ -16,6 +16,7 @@ export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) =>
   const [away, home] = competitors || [];
 
   const isLive = status?.type?.state === 'in';
+  const statusDetail = status?.type?.shortDetail || 'TBD';
   
   useEffect(() => {
     if (isLive) {
@@ -46,7 +47,7 @@ export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) =>
         <div className="p-6" onClick={handleExpandClick}>
           <div className="flex justify-between items-start mb-5">
             <div className="flex flex-col gap-1">
-               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider letter-spacing-1">{status.type?.shortDetail}</span>
+               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider letter-spacing-1">{statusDetail}</span>
                {importanceScore >= 5 && (
                  <span className="text-[9px] text-blue-300 font-semibold uppercase tracking-wide">✨ {reason}</span>
                )}
