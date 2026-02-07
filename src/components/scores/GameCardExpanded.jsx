@@ -169,7 +169,7 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
                <span className="text-[10px] sm:text-[11px] font-black text-blue-400 uppercase tracking-widest flex-shrink-0">
-                 {competition.status.type.detail}
+                 {competition?.status?.type?.detail || 'Game'}
                </span>
             </div>
             <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight mb-1 truncate">
