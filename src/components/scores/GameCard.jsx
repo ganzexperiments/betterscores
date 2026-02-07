@@ -41,7 +41,7 @@ export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) =>
     <>
       <div 
         onClick={handleExpandClick}
-        className="group relative rounded-lg transition-all duration-300 bg-gradient-to-br from-[#0f1117] to-[#0a0e27] border border-white/8 cursor-pointer hover:border-white/15 hover:shadow-lg hover:shadow-blue-500/10"
+        className="group relative rounded-lg transition-all duration-300 bg-gradient-to-br from-[#0f1117] to-[#0a0e27] border border-white/8 cursor-pointer hover:border-white/15 hover:shadow-lg hover:shadow-blue-500/10 hover:scale-105"
         style={{
           backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)`
         }}
