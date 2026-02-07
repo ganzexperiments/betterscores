@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getGameImportance } from '../../utils/game-importance';
+import { getTeamColor } from '../../utils/team-colors';
 import { GameCardExpanded } from './GameCardExpanded';
 import MomentumSparkline from './MomentumSparkline';
 import { espnAPI } from '../../utils/api-client';
@@ -8,6 +9,7 @@ import { espnAPI } from '../../utils/api-client';
 export const GameCard = ({ game, league = 'nba' }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [summary, setSummary] = useState(null);
+  const [isFavorited, setIsFavorited] = useState(false);
   const navigate = useNavigate();
   
   const competition = game.competitions?.[0];
@@ -36,40 +38,57 @@ export const GameCard = ({ game, league = 'nba' }) => {
     document.body.style.overflow = 'auto';
   };
 
+  const homeTeamColor = getTeamColor(home?.team?.id);
+  const awayTeamColor = getTeamColor(away?.team?.id);
+
   return (
     <>
       <div 
         onClick={handleExpandClick}
-        className="group relative overflow-hidden rounded-xl transition-all duration-200 hover:border-white/20 bg-[#0f1117] border border-white/5 cursor-pointer hover:shadow-2xl"
+        className="group relative overflow-hidden rounded-lg transition-all duration-300 bg-gradient-to-br from-[#0f1117] to-[#0a0e27] border border-white/8 cursor-pointer hover:border-white/15 hover:shadow-lg hover:shadow-blue-500/10"
+        style={{
+          backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)`
+        }}
       >
-        <div className="p-5">
-          <div className="flex justify-between items-start mb-4">
-            <div className="flex flex-col">
-               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{status.type?.shortDetail}</span>
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-5">
+            <div className="flex flex-col gap-1">
+               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider letter-spacing-1">{status.type?.shortDetail}</span>
                {importanceScore >= 5 && (
-                 <span className="text-[9px] text-blue-400 font-bold uppercase mt-0.5">✨ {reason}</span>
+                 <span className="text-[9px] text-blue-300 font-semibold uppercase tracking-wide">✨ {reason}</span>
                )}
             </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsFavorited(!isFavorited);
+              }}
+              className="text-slate-400 hover:text-yellow-400 transition-colors duration-200"
+            >
+              {isFavorited ? '⭐' : '☆'}
+            </button>
             {isLive && <MomentumSparkline plays={summary?.plays} />}
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[away, home].map((team, idx) => (
-              <div key={team?.team?.id} className="flex items-center justify-between">
+              <div key={team?.team?.id} className="flex items-center justify-between group/team">
                 <div 
-                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity flex-1"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/team/${league}/${team?.team?.id}`);
                   }}
                 >
-                   <img src={team?.team?.logo} className="w-8 h-8 object-contain" />
-                   <div className="flex flex-col">
-                      <span className="text-sm font-bold text-white uppercase tracking-tight">{team?.team?.abbreviation}</span>
-                      <span className="text-[10px] text-slate-500">{team?.records?.[0]?.summary}</span>
+                   <div className="relative">
+                     <img src={team?.team?.logo} className="w-9 h-9 object-contain filter drop-shadow-lg" />
+                   </div>
+                   <div className="flex flex-col min-w-0">
+                      <span className="text-sm font-bold text-white uppercase tracking-tight leading-tight">{team?.team?.abbreviation}</span>
+                      <span className="text-[9px] text-slate-400 font-medium">{team?.records?.[0]?.summary}</span>
                    </div>
                 </div>
-                <div className={`text-xl font-bold tabular-nums ${team?.team?.id === home?.team?.id ? 'text-blue-500' : 'text-slate-100'}`}>
+                <div className={`text-2xl font-bold tabular-nums ml-3 ${team?.team?.id === home?.team?.id ? 'text-blue-400' : 'text-slate-100'}`}>
                    {team?.score}
                 </div>
               </div>
