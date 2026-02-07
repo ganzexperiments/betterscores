@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getGameImportance } from '../../utils/game-importance';
-import { getTeamColor } from '../../utils/team-colors';
 import { GameCardExpanded } from './GameCardExpanded';
 import MomentumSparkline from './MomentumSparkline';
 import { espnAPI } from '../../utils/api-client';
 
-export const GameCard = ({ game, league = 'nba' }) => {
+export const GameCard = ({ game, league = 'nba', onAddToParlay, isInParlay }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [summary, setSummary] = useState(null);
   const [isFavorited, setIsFavorited] = useState(false);
@@ -38,14 +37,11 @@ export const GameCard = ({ game, league = 'nba' }) => {
     document.body.style.overflow = 'auto';
   };
 
-  const homeTeamColor = getTeamColor(home?.team?.id);
-  const awayTeamColor = getTeamColor(away?.team?.id);
-
   return (
     <>
       <div 
         onClick={handleExpandClick}
-        className="group relative overflow-hidden rounded-lg transition-all duration-300 bg-gradient-to-br from-[#0f1117] to-[#0a0e27] border border-white/8 cursor-pointer hover:border-white/15 hover:shadow-lg hover:shadow-blue-500/10"
+        className="group relative rounded-lg transition-all duration-300 bg-gradient-to-br from-[#0f1117] to-[#0a0e27] border border-white/8 cursor-pointer hover:border-white/15 hover:shadow-lg hover:shadow-blue-500/10"
         style={{
           backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%)`
         }}
@@ -100,15 +96,32 @@ export const GameCard = ({ game, league = 'nba' }) => {
             <div className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider mb-2">Vegas Line</div>
             <div className="flex justify-between items-center text-xs">
               <div className="text-slate-400">Moneyline • Spread • Total</div>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsExpanded(true);
-                }}
-                className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
-              >
-                View →
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onAddToParlay) {
+                      onAddToParlay(game);
+                    }
+                  }}
+                  className={`transition-colors font-medium ${
+                    isInParlay
+                      ? 'text-green-400 hover:text-green-300'
+                      : 'text-slate-500 hover:text-blue-400'
+                  }`}
+                >
+                  {isInParlay ? '✓ Added' : 'Parlay'}
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsExpanded(true);
+                  }}
+                  className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+                >
+                  View →
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { PageWrapper } from '../components/layout/PageWrapper';
 import DatePicker from '../components/scores/DatePicker';
 import { GameCard } from '../components/scores/GameCard';
 import { GameCardSkeleton } from '../components/ui/Skeleton';
+import { ParlayBuilder } from '../components/scores/ParlayBuilder';
 import { useScoreboard } from '../hooks/useBasketballData';
 import { sortGamesByImportance } from '../utils/game-importance';
 import { format } from 'date-fns';
@@ -11,6 +12,7 @@ export const Home = () => {
   // Scoreboard with smart polling optimization
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [league, setLeague] = useState('nba');
+  const [parlayGames, setParlayGames] = useState([]);
   
   const dateStr = format(selectedDate, 'yyyyMMdd');
   const { data, loading, error } = useScoreboard(league, dateStr);
@@ -20,6 +22,18 @@ export const Home = () => {
   const otherGames = games.filter(g => g.status.type.state !== 'in');
   
   const sortedOther = sortGamesByImportance(otherGames, league);
+
+  const handleAddToParlay = (game) => {
+    if (parlayGames.find(g => g.id === game.id)) {
+      setParlayGames(parlayGames.filter(g => g.id !== game.id));
+    } else {
+      setParlayGames([...parlayGames, game]);
+    }
+  };
+
+  const handleRemoveFromParlay = (gameId) => {
+    setParlayGames(parlayGames.filter(g => g.id !== gameId));
+  };
 
   return (
     <PageWrapper>
@@ -60,7 +74,13 @@ export const Home = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {liveGames.map(game => (
-                    <GameCard key={game.id} game={game} league={league} />
+                    <GameCard 
+                      key={game.id} 
+                      game={game} 
+                      league={league}
+                      onAddToParlay={handleAddToParlay}
+                      isInParlay={parlayGames.some(g => g.id === game.id)}
+                    />
                   ))}
                 </div>
               </section>
@@ -73,7 +93,13 @@ export const Home = () => {
               {sortedOther.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedOther.map(game => (
-                    <GameCard key={game.id} game={game} league={league} />
+                    <GameCard 
+                      key={game.id} 
+                      game={game} 
+                      league={league}
+                      onAddToParlay={handleAddToParlay}
+                      isInParlay={parlayGames.some(g => g.id === game.id)}
+                    />
                   ))}
                 </div>
               ) : (
@@ -85,6 +111,14 @@ export const Home = () => {
           </div>
         )}
       </div>
+      
+      {parlayGames.length > 0 && (
+        <ParlayBuilder 
+          selectedGames={parlayGames}
+          onAddGame={handleAddToParlay}
+          onRemoveGame={handleRemoveFromParlay}
+        />
+      )}
     </PageWrapper>
   );
 };
