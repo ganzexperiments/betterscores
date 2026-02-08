@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, TrendingUp, Zap, Target, BarChart3, TrendingDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { espnAPI } from '../../utils/api-client';
@@ -7,6 +7,7 @@ import { mockOdds } from '../../utils/mock-odds';
 export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   const [summary, setSummary] = useState(null);
   const navigate = useNavigate();
+  const scrollYRef = useRef(0);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -153,7 +154,6 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
   const displayOdds = getOdds();
 
   const handleClose = () => {
-    document.body.style.overflow = 'auto';
     onClose();
   };
 
@@ -162,7 +162,7 @@ export const GameCardExpanded = ({ game, league = 'nba', onClose }) => {
       <div 
         className="bg-[#0f1117] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '80vh' }}
+        style={{ maxHeight: '80dvh' }}
       >
         {/* Enhanced Header with Records (Sticky) */}
         <div className="sticky top-0 p-4 sm:p-6 border-b border-white/5 flex justify-between items-start bg-[#0f1117]/95 backdrop-blur z-10">
